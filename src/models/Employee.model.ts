@@ -1,5 +1,13 @@
 import { model, Schema } from "mongoose";
 
+//añado la interfaz de Employee para definir la estructura de los datos que se usaran, y el Schem se encarga unicamente de definir como se validan y guardan los datos en mongoDB
+export interface EmployeeInterface {
+    name: string;
+    position: string;
+    baseSalary: number;
+    yearsOfService: number;
+    finalSalary: number;
+}
 
 const employeeSchema = new Schema({
 
