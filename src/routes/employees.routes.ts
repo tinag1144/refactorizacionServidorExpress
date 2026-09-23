@@ -1,4 +1,4 @@
-    import { Router } from "express";
+    import { Request, Response, NextFunction, Router } from "express";
     import { EmployeeControllers } from "../controllers/employee.controller.js";
     import { EmployeeRepository } from "../repository/EmployeeRepository.js";
     import { EmployeeService } from "../service/EmployeeService.js";
@@ -20,13 +20,13 @@ export class EmployeeRoutes {
 
 
         //POST 
-        router.post('/', (req, res, next) => controller.createEmployee(req, res, next))
+        router.post('/', (req: Request, res: Response, next: NextFunction) => controller.createEmployee(req, res, next))
 
         //GET all employees
-        router.get('/', (req, res, next) => controller.getEmployees(res, next));
+        router.get('/', (req: Request, res: Response, next: NextFunction) => controller.getEmployees(res, next));
 
         //GET employee by id 
-        router.get('/:id', (req, res, next) => controller.getEmployeeById(req, res, next))
+        router.get('/:id', (req: Request, res: Response, next: NextFunction) => controller.getEmployeeById(req, res, next))
 
         
 
