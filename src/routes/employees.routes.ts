@@ -1,5 +1,7 @@
     import { Router } from "express";
     import { EmployeeControllers } from "../controllers/employee.controller.js";
+    import { EmployeeRepository } from "../repository/EmployeeRepository.js";
+    import { EmployeeService } from "../service/EmployeeService.js";
 
 export class EmployeeRoutes {
 
@@ -9,11 +11,24 @@ export class EmployeeRoutes {
 
     static get routes(): Router{
 
-
+        //conecto las distintas capas de la aplicación mediante dependencias, el repository se encarga de acceder a mongo, el service utiliza el repository para realizar la logica del negocio y controller utiliza service para manejar las peticiones 
         const router = Router()
 
-        router.get('/')
+        const repository = new EmployeeRepository();
+        const service = new EmployeeService(repository);
+        const controller = new EmployeeControllers(service);
 
+
+        //POST 
+        router.post('/', (req, res) => controller.createEmployee(req, res))
+
+        //GET all employees
+        router.get('/', (req, res) => controller.getEmployees(res));
+
+        //GET employee by id 
+        router.get('/:id', (req, res) => controller.getEmployeeById(req, res))
+
+        
 
 
         
