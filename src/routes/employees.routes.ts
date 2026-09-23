@@ -20,13 +20,13 @@ export class EmployeeRoutes {
 
 
         //POST 
-        router.post('/', (req, res) => controller.createEmployee(req, res))
+        router.post('/', (req, res, next) => controller.createEmployee(req, res, next))
 
         //GET all employees
-        router.get('/', (req, res) => controller.getEmployees(res));
+        router.get('/', (req, res, next) => controller.getEmployees(res, next));
 
         //GET employee by id 
-        router.get('/:id', (req, res) => controller.getEmployeeById(req, res))
+        router.get('/:id', (req, res, next) => controller.getEmployeeById(req, res, next))
 
         
 

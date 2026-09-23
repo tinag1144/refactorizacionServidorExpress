@@ -1,5 +1,5 @@
 import { EmployeeService } from "../service/EmployeeService.js";
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 
 export class EmployeeControllers{
 
@@ -11,7 +11,7 @@ export class EmployeeControllers{
 
 
     //validaciones para crear empleado
-    async createEmployee(req: Request, res: Response){
+    async createEmployee(req: Request, res: Response, next: NextFunction){
         try {
             const {
                 name,
@@ -46,15 +46,13 @@ export class EmployeeControllers{
 
             return res.status(201).json(employee);
         } catch (error) {
-            return res.status(500).json({
-            message: "Error interno del servidor"
-        });
+            next(error)
 }
     }
 
     //validaciones para traer a todos los empleados
 
-    async getEmployees(res: Response){
+    async getEmployees(res: Response, next: NextFunction){
 
         try {
             const employees = await this.service.getEmployees()
@@ -62,12 +60,10 @@ export class EmployeeControllers{
                 employees
             )
         } catch (error) {
-            res.status(500).json({
-                message: "Error en el servidor"
-            })
+            next(error)
         }
     }
-    async getEmployeeById(req: Request, res: Response){
+    async getEmployeeById(req: Request, res: Response, next: NextFunction){
 
         const id = String(req.params.id) //acá convierto el id a string (no entendí bien por qué, corregí un error nada más)
 
@@ -84,9 +80,7 @@ export class EmployeeControllers{
                 employee
             )
         } catch (error) {
-            res.status(500).json({
-                message: "Error en el servidor"
-            })
+            next(error)
         }
     }
 }
