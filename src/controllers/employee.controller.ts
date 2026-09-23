@@ -51,5 +51,42 @@ export class EmployeeControllers{
         });
 }
     }
-    
+
+    //validaciones para traer a todos los empleados
+
+    async getEmployees(res: Response){
+
+        try {
+            const employees = await this.service.getEmployees()
+            return res.status(200).json(
+                employees
+            )
+        } catch (error) {
+            res.status(500).json({
+                message: "Error en el servidor"
+            })
+        }
+    }
+    async getEmployeeById(req: Request, res: Response){
+
+        const id = String(req.params.id) //acá convierto el id a string (no entendí bien por qué, corregí un error nada más)
+
+
+        try {
+            const employee = await this.service.getEmployeeById(id)
+
+            if (!employee){
+                return res.status(404).json({
+                    message: "Empleado no encontrado"
+                })
+            }
+            return res.status(200).json(
+                employee
+            )
+        } catch (error) {
+            res.status(500).json({
+                message: "Error en el servidor"
+            })
+        }
+    }
 }
