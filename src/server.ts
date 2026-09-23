@@ -1,99 +1,57 @@
-import 'dotenv/config';
-import express, { Request, Response } from 'express';
-import mongoose, { Schema, model } from 'mongoose';
+//definicion de la clase server
 
-const app = express();
-app.use(express.json());
+import express, { Application } from "express"
+import mongoose from "mongoose";
+import { EmployeeRoutes } from "./routes/employees.routes.js";
 
-const employeeSchema = new Schema(
-  {
-    name: { type: String, required: true },
-    position: { type: String, required: true },
-    baseSalary: { type: Number, required: true },
-    yearsOfService: { type: Number, required: true },
-    finalSalary: { type: Number, required: true }
-  },
-  { timestamps: true }
-);
+class Server {
 
-const Employee = model('Employee', employeeSchema);
+    //acá pguardo app y la hago de tipo express pq va a guardar la aplicacion que crea express(), o sea es lo mismo que const app = express()
+    private app:Application;
 
-app.post('/employees', async (req: Request, res: Response) => {
-  try {
-    const { name, position, baseSalary, yearsOfService } = req.body;
-
-    if (!name || !position) {
-      return res.status(400).json({ message: 'Nombre y puesto son obligatorios' });
+    constructor(){
+        this.app = express()
     }
 
-    if (typeof baseSalary !== 'number' || baseSalary <= 0) {
-      return res.status(400).json({ message: 'El salario base debe ser mayor a 0' });
+    
+    middlewares(){
+        this.app.use(express.json()) //este es un middleware de express que permite que la aplicación pueda recibir y procesar datos JSON enviados en el body de las peticiones
     }
 
-    if (
-      typeof yearsOfService !== 'number' ||
-      yearsOfService < 0 ||
-      !Number.isInteger(yearsOfService)
-    ) {
-      return res.status(400).json({ message: 'La antigüedad debe ser un entero mayor o igual a 0' });
+    routes(){
+        this.app.use("/employees", EmployeeRoutes.routes)
     }
 
-    const bonus = baseSalary * 0.02 * yearsOfService;
-    const finalSalary = baseSalary + bonus;
 
-    const employee = await Employee.create({
-      name,
-      position,
-      baseSalary,
-      yearsOfService,
-      finalSalary
-    });
+    async dbConnect() {
+    try {
+        await mongoose.connect(
+            process.env.MONGO_URI || "mongodb://localhost:27017/employees_db"
+        );
 
-    console.log(`Empleado creado: ${employee.name} - salario final: ${employee.finalSalary}`);
-    return res.status(201).json(employee);
-  } catch (error) {
-    console.error(error);
-    return res.status(500).json({ message: 'Error interno del servidor' });
-  }
+        console.log("Base de datos conectada");
+
+    } catch (error) {
+        console.error("Error al conectar con la base de datos", error);
+        process.exit(1);
+    }
+}
+
+
+    listen() {
+        const PORT = process.env.PORT || 3000;
+
+        this.app.listen(PORT, () => {
+            console.log(`Servidor corriendo en el puerto ${PORT}`);
+        });
+    }
+}
+
+const server = new Server();
+
+server.middlewares();
+server.routes();
+
+server.dbConnect().then(() => {
+    server.listen();
 });
-
-app.get('/employees', async (_req: Request, res: Response) => {
-  try {
-    const employees = await Employee.find().sort({ createdAt: -1 });
-    return res.json(employees);
-  } catch (error) {
-    console.error(error);
-    return res.status(500).json({ message: 'Error interno del servidor' });
-  }
-});
-
-app.get('/employees/:id', async (req: Request, res: Response) => {
-  try {
-    const employee = await Employee.findById(req.params.id);
-
-    if (!employee) {
-      return res.status(404).json({ message: 'Empleado no encontrado' });
-    }
-
-    return res.json(employee);
-  } catch (error) {
-    console.error(error);
-    return res.status(500).json({ message: 'Error interno del servidor' });
-  }
-});
-
-const PORT = Number(process.env.PORT ?? 3000);
-const MONGO_URI = process.env.MONGO_URI ?? 'mongodb://localhost:27017/employees_db';
-
-mongoose
-  .connect(MONGO_URI)
-  .then(() => {
-    console.log('MongoDB conectado');
-    app.listen(PORT, () => {
-      console.log(`Servidor escuchando en http://localhost:${PORT}`);
-    });
-  })
-  .catch((error) => {
-    console.error('No se pudo conectar a MongoDB', error);
-    process.exit(1);
-  });
