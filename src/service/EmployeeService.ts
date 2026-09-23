@@ -13,6 +13,8 @@ export class EmployeeService {
         this.repository = repository
     }
 
+    
+
     //calculo del salario final 
     finalSalary(baseSalary: number, yearsOfService: number){
 
@@ -23,11 +25,21 @@ export class EmployeeService {
     }
 
     async createEmployee(employee: EmployeeInterface){
-        employee.finalSalary = this.finalSalary(employee.baseSalary, employee.yearsOfService)
 
-        //uma vez que se calcula el salario, le cedo la responsabilidad a repository para que cree al empleado
-        
-        return await this.repository.createEmployee(employee)
+        //saqué el finalSalary de la interfaz porque no es un dato que el usuario deberia de ingresar, ahora lo calculo directamente en service y creo un objeto con ese valor        
+        const finalSalary = this.finalSalary(
+        employee.baseSalary,
+        employee.yearsOfService
+    );
+
+    //y acá creo un nuevo objeto con la informacion de employee y le agrego el calculo del salario final para poder mandarselo a repository
+
+        const employeeWithSalary = {
+        ...employee,
+        finalSalary
+    };
+
+        return await this.repository.createEmployee(employeeWithSalary)
     }
 
 

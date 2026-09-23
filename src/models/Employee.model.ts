@@ -6,7 +6,6 @@ export interface EmployeeInterface {
     position: string;
     baseSalary: number;
     yearsOfService: number;
-    finalSalary: number;
 }
 
 const employeeSchema = new Schema({
