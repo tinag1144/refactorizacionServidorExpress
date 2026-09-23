@@ -3,6 +3,7 @@
 import express, { Application } from "express"
 import mongoose from "mongoose";
 import { EmployeeRoutes } from "./routes/employees.routes.js";
+import { errorHandler } from "./errorHandler/errorHandler.js";
 
 class Server {
 
@@ -20,8 +21,12 @@ class Server {
 
     routes(){
         this.app.use("/employees", EmployeeRoutes.routes)
+
+            //middleware encargado de manejar los errores de la aplicación
+        this.app.use(errorHandler);
     }
 
+    
 
     async dbConnect() {
     try {
